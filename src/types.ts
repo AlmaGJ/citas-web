@@ -1,60 +1,47 @@
 export type ScreenType = 'login' | 'register' | 'dashboard';
 
+export type Role = 'USER' | 'PROFESSIONAL' | 'ADMIN';
+
 export interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  insuranceId?: string;
-  avatarUrl?: string;
-  roles?: string[];
+  roles: string[];
 }
 
-export interface Doctor {
-  id: string;
+/** Values below deliberately mirror REST DTOs; the server remains authoritative. */
+export interface CatalogItem {
+  id: number;
   name: string;
-  specialty: string;
-  hospital: string;
-  rating: number;
-  reviewsCount: number;
-  availableDays: string[];
-  price: number;
-  avatar: string;
-  experienceYears: number;
-  consultationType: 'presencial' | 'videoconsulta' | 'ambas';
 }
 
-export type AppointmentStatus = 'confirmada' | 'pendiente' | 'completada' | 'cancelada';
+export interface Specialty extends CatalogItem {
+  durationMinutes: 30 | 60;
+  appointmentType: 'GENERAL' | 'SPECIALIZED';
+}
 
-export interface Appointment {
-  id: string;
-  doctorId: string;
-  doctorName: string;
-  doctorSpecialty: string;
-  doctorAvatar: string;
-  patientId: string;
-  patientName: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-  location: string;
-  room?: string;
-  type: 'presencial' | 'videoconsulta';
-  meetUrl?: string;
+export interface Professional {
+  id: number;
+  fullName: string;
+  specialtyIds?: number[];
+}
+
+export interface AvailabilitySlot {
+  professionalId: number;
+  professionalName: string;
+  startAt: string;
+  endAt: string;
+}
+
+export type AppointmentStatus = 'APPROVED' | 'REQUESTED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+
+export interface AppointmentConfirmation {
+  id: number;
   status: AppointmentStatus;
-  reason: string;
-  notes?: string;
-  prepInstructions?: string[];
-  prescription?: {
-    diagnosis: string;
-    medicines: { name: string; dose: string; frequency: string; duration: string }[];
-    notes: string;
-  };
-}
-
-export interface Specialty {
-  id: string;
-  name: string;
-  iconName: string;
-  doctorCount: number;
-  description: string;
+  professionalName: string;
+  specialtyName: string;
+  locationName: string;
+  startAt: string;
+  endAt: string;
 }

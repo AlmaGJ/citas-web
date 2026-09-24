@@ -56,7 +56,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/20 text-xs font-medium text-blue-200 backdrop-blur-md"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                <span>Agenda inteligente • Recordatorios en tiempo real</span>
+                <span>Agenda de citas • Acceso seguro</span>
               </div>
 
               {/* Main Heading */}

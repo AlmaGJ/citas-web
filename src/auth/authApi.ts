@@ -15,6 +15,14 @@ export interface Registration {
   email: string;
   phone: string;
   password: string;
+  insurancePlanId?: number;
+}
+
+export interface ActivePlan {
+  id: number;
+  name: string;
+  epsName: string;
+  regime: string;
 }
 
 interface RegistrationResponse extends Omit<Registration, 'password'> {
@@ -71,6 +79,17 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
 
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+export async function getActivePlans(): Promise<ActivePlan[]> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/api/v1/catalogs/active-plans`);
+  } catch {
+    throw new AuthApiError(0, 'No fue posible cargar los planes disponibles.');
+  }
+  if (!response.ok) throw new AuthApiError(response.status, 'No fue posible cargar los planes disponibles.');
+  return response.json() as Promise<ActivePlan[]>;
 }
 
 function acceptAccess(result: AccessResponse): AccessClaims {
@@ -158,7 +177,7 @@ export function restoreSession(): Promise<User | null> {
       return null;
     })
     .finally(() => { restorePromise = null; });
-  return restorePromise;
+  return restorePromise!;
 }
 
 export async function logout(): Promise<void> {

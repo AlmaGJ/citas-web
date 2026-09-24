@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User as UserIcon, Mail, Phone, Lock, Eye, EyeOff, FileText, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { User } from '../types';
-import { authErrorMessage, register } from '../auth/authApi';
+import { authErrorMessage, getActivePlans, register, type ActivePlan } from '../auth/authApi';
 
 interface RegisterScreenProps {
   onRegisterSuccess: (user: User) => void;
@@ -19,10 +19,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [plans, setPlans] = useState<ActivePlan[]>([]);
+  const [insurancePlanId, setInsurancePlanId] = useState('');
+  const [plansError, setPlansError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    getActivePlans().then(setPlans).catch(() => setPlansError('No fue posible cargar los planes. Puedes registrarte sin afiliación.'));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +53,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         email,
         phone,
         password,
+        insurancePlanId: insurancePlanId ? Number(insurancePlanId) : undefined,
       });
       onRegisterSuccess(user);
     } catch (error) {
@@ -83,21 +91,21 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               </h1>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-light">
-                Crea tu expediente digital en segundos y accede a especialistas certificados, recordatorios y recetas en línea.
+                Crea tu cuenta para consultar disponibilidad y solicitar citas en este entorno académico.
               </p>
 
               <div className="pt-2 space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                  <span>Agendamiento en 3 sencillos clics</span>
+                  <span>Consulta de disponibilidad por sede y especialidad</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                  <span>Recordatorios automáticos vía email y SMS</span>
+                  <span>Afiliación opcional con un plan activo</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">✓</div>
-                  <span>Historial médico y recetas descargables</span>
+                  <span>Solicitudes respaldadas por el servicio de citas</span>
                 </div>
               </div>
             </div>
@@ -315,6 +323,18 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                     />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5" htmlFor="reg-insurance-plan">
+                  Plan de afiliación (opcional)
+                </label>
+                <select className="input-transition block w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  id="reg-insurance-plan" value={insurancePlanId} onChange={(e) => setInsurancePlanId(e.target.value)}>
+                  <option value="">Sin afiliación por ahora</option>
+                  {plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.epsName} — {plan.name} ({plan.regime})</option>)}
+                </select>
+                {plansError && <p className="mt-1 text-xs text-amber-700" role="status">{plansError}</p>}
               </div>
 
               <div>
