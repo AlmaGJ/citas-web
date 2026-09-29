@@ -5,6 +5,7 @@ import { apiErrorMessage, cancelAppointment, getMyAppointments, type Appointment
 
 interface DashboardScreenProps {
   user: User;
+  refreshKey?: number;
   onOpenBooking: () => void;
   onLogout: () => void;
 }
@@ -15,7 +16,7 @@ const roleCopy: Record<Role, { title: string; description: string; icon: typeof 
   ADMIN: { title: 'Administración', description: 'La gestión de catálogos, profesionales y decisiones se habilita según los permisos del servidor.', icon: ClipboardList },
 };
 
-export const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, onOpenBooking, onLogout }) => {
+export const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, refreshKey = 0, onOpenBooking, onLogout }) => {
   const activeRole = (user.roles.find((role): role is Role => role in roleCopy) ?? 'USER');
   const content = roleCopy[activeRole];
   const Icon = content.icon;
@@ -28,7 +29,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ user, onOpenBo
     setLoadingAppointments(true);
     getMyAppointments().then((items) => { if (mounted) setAppointments(items); }).catch((error) => { if (mounted) setAppointmentError(apiErrorMessage(error)); }).finally(() => { if (mounted) setLoadingAppointments(false); });
     return () => { mounted = false; };
-  }, [activeRole]);
+  }, [activeRole, refreshKey]);
   const cancel = async (id: number) => {
     try { const updated = await cancelAppointment(id); setAppointments((current) => current.map((item) => item.id === id ? updated : item)); }
     catch (error) { setAppointmentError(apiErrorMessage(error)); }

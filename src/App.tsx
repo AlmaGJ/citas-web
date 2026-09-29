@@ -13,6 +13,7 @@ export default function App() {
   const [isRestoringSession, setIsRestoringSession] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [appointmentsRefreshKey, setAppointmentsRefreshKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -31,6 +32,7 @@ export default function App() {
   const handleLoginSuccess = (user: User) => { setCurrentUser(user); setCurrentScreen('dashboard'); showToast(`Bienvenido/a, ${user.name}.`); };
   const handleRegisterSuccess = (user: User) => { setCurrentUser(user); setCurrentScreen('dashboard'); showToast('Cuenta creada correctamente.'); };
   const handleBooked = (appointment: AppointmentConfirmation) => {
+    setAppointmentsRefreshKey((value) => value + 1);
     const state = appointment.status === 'APPROVED' ? 'confirmada' : 'recibida para decisión administrativa';
     showToast(`Tu cita fue ${state}.`);
   };
@@ -45,7 +47,7 @@ export default function App() {
     {toastMessage && <div id="portal-toast" role="status" className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700/80 flex items-center gap-2.5 text-xs sm:text-sm font-medium"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{toastMessage}</div>}
     {currentScreen === 'login' && <LoginScreen onLoginSuccess={handleLoginSuccess} onNavigateRegister={() => setCurrentScreen('register')} />}
     {currentScreen === 'register' && <RegisterScreen onRegisterSuccess={handleRegisterSuccess} onNavigateLogin={() => setCurrentScreen('login')} />}
-    {currentScreen === 'dashboard' && currentUser && <DashboardScreen user={currentUser} onOpenBooking={() => setIsBookingOpen(true)} onLogout={handleLogout} />}
+    {currentScreen === 'dashboard' && currentUser && <DashboardScreen user={currentUser} refreshKey={appointmentsRefreshKey} onOpenBooking={() => setIsBookingOpen(true)} onLogout={handleLogout} />}
     <BookAppointmentModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} onAppointmentBooked={handleBooked} />
   </div>;
 }
